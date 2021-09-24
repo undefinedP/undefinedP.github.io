@@ -1,8 +1,8 @@
+---
 title: 'BASENOTE 프로젝트 회고'
 date: 2021-07-26
 category: '회고'
 draft: false
-
 ---
 
 ### PAFFEM 사이트 클론코딩
