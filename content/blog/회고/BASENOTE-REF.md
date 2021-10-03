@@ -160,30 +160,63 @@ concat은... 지금 보니 필요없다고 판단이 된다. 두 개의 문자�
 
 ### 😎 필터링 다 했니? 이제 에러 핸들링 가보자고
 
-클라이언트가 용량에 따른 아이디에 이상한 숫자를 넣거나, 없는 향을 요청을 보내면 안되기 때문에 이에 대한 에러 처리를 해주어야 한다.
+클라이언트가 용량의 아이디를 넣어야 하는 곳에 이상한 숫자를 넣거나, 없는 향을 요청을 보내면 안되기 때문에 이에 대한 에러 처리를 해주어야 했다.
 <br/>
 
 ```javascript
-  if (!scentName) {
-      const products = await ProductService.findAllProducts(volumeId);
+const filter = await ProductService.findProducts(volumeId, scentName)
 
-      res.status(200).json({ messate: 'FIND_PRODUCTS_SUCCESSFULLY', products });
-    } else if (volumeId < 3 && volumeId >= 1) {
-      const filter = await ProductService.findProducts(volumeId, scentName);
+if ((volumeId < 3 && volumeId >= 1) === false) {
+  err = new Error('INVALID_ACCESS')
+  err.statusCode = 400
+  throw err
+}
+if (!scentName) {
+  const products = await ProductService.findAllProducts(volumeId)
 
-      res.status(200).json({ message: 'FILTER_PRODUCTS_SUCCESSFULLY', filter });
-    } else {
-      err = new Error('INVALID_ACCESS');
-      err.statusCode = 400;
-      throw err;
-    }
-  } catch (err) {
-    res.status(err.statusCode || 500).json({ message: err.message });
-  }
+  return res
+    .status(200)
+    .json({ messate: 'FIND_PRODUCTS_SUCCESSFULLY', products })
+}
+
+if (filter.length === 0) {
+  err = new Error('INVALID_SCENT_NAME')
+  err.statusCode = 400
+  throw err
+}
+
+res.status(200).json({ message: 'FILTER_PRODUCTS_SUCCESSFULLY', filter })
 ```
+
+`if...else`를 남발하고 싶지 않아서 고민을 좀 했다 우짜지...어떻게 해야 가독성이 좋아지지...그러다가 [이런 방법](https://eblo.tistory.com/7)을 발견했다. **Gateway style**을 도입을 해도 괜찮을 것 같아서 한번?도입을?해?보았다.
+
+난 Gateway style을 속된말로 *입구컷 시킨다*라고 받아들였다. 예를 들어서 고급 레스토랑에 저녁 먹으러 갔는데 슬리퍼에 청바지 입었다고 입장하실 수 없습니다...라고 하는 덩치 큰 가드 아저씨가 나오고... 뭐 그런 미드에나 나올법한 장면이라고 해야하나.
+
+서비스적인 입장에서 생각을 해 보았을때 보통 사람들은
+
+1. 용량에 따라 먼저 선택을 한다
+2. 좋아하는 향을 필터링하기 위해서 클릭을 한다
+3. 그 다음에는 그 필터를 제거하기 위해서 또 클릭을 할 수도 있고, 안 할 수도 있다
+
+이런 흐름으로 진행이 될 것이라고 생각했다. 그래서 조건문도 순서대로 걸어주었 *(입구컷을 시켰)*다.
+
+1. 지정해놓은 용량의 id에서 벗어날 시에 에러를 던진다
+2. 향의 이름이 undefined일 때, 전체 상품의 데이터를 뿌려준다
+3. DB에 없는 향의 이름으로 접근을 하려고 할 시에 에러를 던진다.
+4. 올바르게 접근을 할 시, 해당하는 향을 가지고 있는 상품만 출력을 한다.
+
+의외로 막혔던게 `statusCode`를 설정하는 부분이었다. 400을 할까.. 404를 할까 고민을 많이 했는데 애초에 클라이언트가 리퀘스트를 잘못 보내서 발생하는 에러이기 때문에 400으로 설정을 했다.
+
+<br/>
 
 ### 🔎 과정을 다시 돌아보면서
 
-자기 불신과..엄청난 시행착오를 겪어서 나온게 저런 코드라니? 심지어 중복이 엄청나게 되는!!! 코드라니?!! 그런데 SQL문으로 작성을 해서 저렇게 중복이 나오게 되는건지, 아니면 ORM으로 작성을 했을 때도 저렇게 중복해서 나오게 되는건지는 더 테스트를 해보아야 할 것 같다. 네버엔딩. 리팩토링.
+정말 믿을 수가 없다...엥 구라치지 마세요;
+엄청난 시행착오를 겪어서 나온게 저런 코드라니? 심지어 중복이 엄청나게 되는!!! 코드라니?!! 그런데 SQL문으로 작성을 해서 저렇게 중복이 나오게 되는건지, 아니면 ORM으로 작성을 했을 때도 저렇게 중복해서 나오게 되는건지는 더 테스트를 해보아야 할 것 같다.
 
-분명히 더 나은 방법이 있을거다. 근데 그걸 내가 모르는 것 뿐...딱 대 나오기만 해봐 내가 어떻게든 나오게 한다...
+분명히 더 나은 방법이 있을거다. 근데 그걸 내가 모르는 것 뿐...딱 대 나오기만 해봐 내가 어떻게든 나오게 한다...점점 오기가 생기는 이 기분 짜릿하네..어 나 이런거 좋아했네...?
+
+저번에도 한달 지나면 리팩토링할게 산처럼 많아질 것 같다는 뉘앙스로 적었던적이 있는데 역시나 아니나 다를까 그 말이 맞았다. 또 다음달에 보면 아니 뭔 코드를 이렇게 짰냐;;하면서 뜯어고치는건 아닌가 몰라?
+
+다음달의 내가 엥,,코드 왜 이래,,라고 말하기 전에 '아~ 이래서 이렇게 썼구나~'라고 알 수 있게 적어봤다.
+이 코드가...! 다음달의 내가 봐도 납득할 수 있는 코드였으면 좋겠다 ..! 물론 아니어도 상관은 없음 그만큰 내가 더 많이 알았다는거니까😉
