@@ -1,5 +1,5 @@
 ---
-title: 'BASENOTE 프로젝트 회고-ver.1'
+title: '✏️BASENOTE 프로젝트 회고-ver.1'
 date: 2021-07-26
 category: '회고'
 draft: false
