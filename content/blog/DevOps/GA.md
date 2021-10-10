@@ -2,7 +2,7 @@
 title: '🪄GitHub Actions를 이용해서 CI/CD를 구축해보자!'
 date: 2021-10-07
 category: 'DevOps'
-draft: true
+draft: false
 ---
 
 ![GitHub Actions](https://media.vlpt.us/images/lingodingo/post/6faf3011-da9b-431b-980a-7324f1ffbc11/android-github-actions-setup-image-35b6a79fea4a7289acb6796cd4ad05b4.png)
