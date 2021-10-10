@@ -70,6 +70,11 @@ CI를 성공적으로 적용한다면 애플리케이션에 대한 새로운 코
 
 - Github에서 여러가지 workflow 템플릿을 추천해주는데, 이걸 사용함으로서 테스트/빌드/배포 등 다양한 작업들을 자동화하여 뚝딱 처리할 수 있다.
 
+### GitHub Actions을 선택한 이유
+
+1. Jenkins처럼 설치 후 따로 서버를 팔 필요가 없다
+2. 기왕이면 GitHub 하나로 자동화를 관리하는 것이 편하다고 판단했다.
+
 ## GitHub Actions의 구성
 
 **Workflow(워크 플로우)**
@@ -115,3 +120,66 @@ on:
 - `GitHub Actions Runner Application`이 설치된 서버.
 - GitHub에서 호스팅하는 러너를 사용할 수도 있고, 직접 호스팅을 할 수도 있다.
 - 워크플로우가 실행될 인스턴스이다.
+
+## 배포 자동화 가보자고.
+
+### Access Token 생성
+
+GitHub Actions를 사용하기 위해서는 `Access Token`이 필요하다. 레포지토리에 직접적으로 접근을 해야하기 때문!!
+
+[여기](https://github.com/settings/tokens)에서 발급받을 수 있다.
+
+`Generate New Token` 버튼을 클릭해서 Note의 부분에 토큰 이름을 적고, Select scopes의 Repo부분을 전부 체크해준다.
+![newtoken](./images/new_token.png)
+
+`Generate Token` 버튼을 누르면 토큰이 생성된다! 그런데 토큰은 다음에 다시 확인할 수 없으니까 꼬옥..복사해서 어디 적어놔야한다..
+
+### Access Token 할당
+
+위에서 발행한 토큰을 레포지토리에 할당을 해주자.
+
+레포지토리의 설정에 들어가 `Secrets`탭에 있는 `New repository secret` 버튼을 클릭해서 Name에는 토큰 이름(위의 토큰 이름과 달라도 됨!), Value에는 위에서 발행한 토큰 값을 넣어주고 추가를 하면 끝!
+
+### Workflow 생성
+
+워크플로우를 실행시키기 위해서는 먼저 `.github/workflows` 밑에 `main.yml` 파일을 추가해준다.
+
+```yaml
+# GitHub Action의 workflow 이름
+name: Gatsby Publish
+
+# gh-pages라는 브랜치에 push를 할 때마다 jobs를 실행
+on:
+  push:
+    branches:
+      - gh-pages
+jobs:
+  build_gatsby:
+    name: build
+    # 실행 환경이 ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      # checkout을 해주는 액션 소스코드를 사용
+      - uses: actions/checkout@v2
+
+      - name: packages install🛸
+        run: yarn install
+
+      - name: gatsby build🚀
+        run: yarn build
+        env:
+          # GH_API_KEY에 secret을 생성할 때 설정한 이름으로 넣어야 한다
+          GH_API_KEY: ${{secrets.TOKEN_KEY}}
+
+      - name: deploy🛰
+        uses: maxheld83/ghpages@v0.2.1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          # 여기도 마찬가지! TOKEN_KEY 대신 자신이 설정한 이름을 넣어주면 된다
+          GH_PAT: ${{secrets.TOKEN_KEY}}
+          BUILD_DIR: 'public/'
+```
+
+위 코드를 작성한 뒤에 브랜치에 푸시를 해주면, repository의 Actions탭에 워크플로우가 추가된 것을 확인 할 수 있다!
+
+### 동작확인
