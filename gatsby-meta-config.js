@@ -3,7 +3,7 @@ module.exports = {
   description: `내가 해냄`,
   author: `UndefinedP`,
   introduction: `기록을 잘 하는 개발자가 되고 싶어요`,
-  siteUrl: `https://undefinedp.github.io`, // Your blog site url
+  siteUrl: `https://undefinedp.github.io/`, // Your blog site url
   social: {
     twitter: ``, // Your Twitter account
     github: `undefinedP`, // Your GitHub account

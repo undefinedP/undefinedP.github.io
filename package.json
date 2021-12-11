@@ -65,6 +65,7 @@
     "inquirer": "^8.2.0",
     "prettier": "^2.5.1",
     "recursive-readdir": "^2.2.2",
+    "sass": "^1.45.0",
     "signale": "^1.4.0"
   },
   "homepage": "https://undefinedp.github.io",

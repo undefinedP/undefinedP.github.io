@@ -96,8 +96,8 @@ module.exports = {
     {
       resolve: 'gatsby-plugin-robots-txt',
       options: {
-        host: 'https://undefinedp.github.io',
-        sitemap: 'https://undefinedp.github.io/sitemap.xml',
+        host: 'https://undefinedp.github.io/',
+        sitemap: 'https://undefinedp.github.io/sitemap/sitemap-index.xml',
         policy: [
           {
             userAgent: '*',
@@ -112,6 +112,6 @@ module.exports = {
     `gatsby-plugin-react-helmet`,
     `gatsby-plugin-sass`,
     `gatsby-plugin-lodash`,
-    `gatsby-plugin-sitemap`,
+    'gatsby-plugin-sitemap'
   ],
 }
