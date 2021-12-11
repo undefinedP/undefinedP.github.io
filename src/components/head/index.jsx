@@ -7,7 +7,7 @@ export function Head({ description, lang, meta, keywords, title }) {
   return (
     <StaticQuery
       query={detailsQuery}
-      render={data => {
+      render={(data) => {
         const metaDescription =
           description || data.site.siteMetadata.description
         return (
@@ -18,6 +18,10 @@ export function Head({ description, lang, meta, keywords, title }) {
             title={title}
             titleTemplate={`%s | ${data.site.siteMetadata.title}`}
             meta={[
+              {
+                name: 'google-site-verification',
+                content: 'B_0ME1Ly4Wa-eHNCll8QGzY432QEfqjDhaZWyUcoJ7c',
+              },
               {
                 name: `description`,
                 content: metaDescription,
