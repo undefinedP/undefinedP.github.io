@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://undefinedp.github.io/sitemap/sitemap-0.xml
+Host: https://undefinedp.github.io
